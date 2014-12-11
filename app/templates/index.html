@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block body %}
+  <h2>Overview</h2>
+  {% if g.user %}
+  <p>
+    Ciao {{ g.user.name }}!
+  {% endif %}
+  <p>
+    Questa è una prova.
+{% endblock %}

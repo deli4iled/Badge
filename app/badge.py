@@ -1,5 +1,11 @@
-from flask import Flask, redirect, url_for, session
+from app import app
+from flask import Flask, redirect, url_for, session, render_template, request, g, flash, abort
 from flask_oauth import OAuth
+
+from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+
 
 
 # You must configure these 3 values from Google APIs console
@@ -12,6 +18,11 @@ SECRET_KEY = 'development key'
 DEBUG = True
 
 app = Flask(__name__)
+app.config.update(
+    DATABASE_URI = 'sqlite:///users.db',
+    #SECRET_KEY = 'development key',
+    #DEBUG = True
+)
 app.debug = DEBUG
 app.secret_key = SECRET_KEY
 oauth = OAuth()
@@ -27,6 +38,39 @@ google = oauth.remote_app('google',
                           access_token_params={'grant_type': 'authorization_code'},
                           consumer_key=GOOGLE_CLIENT_ID,
                           consumer_secret=GOOGLE_CLIENT_SECRET)
+
+# setup sqlalchemy
+engine = create_engine(app.config['DATABASE_URI'])
+db_session = scoped_session(sessionmaker(autocommit=False,
+                                         autoflush=True,
+                                         bind=engine))
+Base = declarative_base()
+Base.query = db_session.query_property()
+
+def init_db():
+    Base.metadata.create_all(bind=engine)
+
+class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(60))
+    email = Column(String(200))
+    openid = Column(String(200))
+
+    def __init__(self, name, email, openid):
+        self.name = name
+        self.email = email
+        self.openid = openid
+
+'''
+@app.before_request
+def before_request():
+    pass
+
+@app.after_request
+def after_request(response):
+    pass
+'''
 
 @app.route('/')
 def index():
@@ -48,8 +92,10 @@ def index():
             session.pop('access_token', None)
             return redirect(url_for('login'))
         return res.read()
-
-    return res.read()
+    print res.read()
+    #g.user = res.read()['name']
+    #TODO: qui bisogna controllare se l'email e' presente nel db
+    return render_template('index.html')
 
 
 @app.route('/login')
@@ -73,7 +119,7 @@ def get_access_token():
 
 
 def main():
-    app.run()
+    app.run(debug=True)
 
 
 if __name__ == '__main__':
