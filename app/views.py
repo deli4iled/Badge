@@ -36,6 +36,22 @@ def before_request():
 @app.route('/')
 @app.route('/index')
 def index():
+    
+    return render_template('index.html')
+    #return res.read()
+    
+@app.route('/login')
+def login():
+    callback=url_for('authorized', _external=True)
+    print "dopo qui"
+    return google.authorize(callback=callback)
+
+@app.route(REDIRECT_URI)
+@google.authorized_handler
+def authorized(resp):
+    print "authorized"
+    access_token = resp['access_token']
+    session['access_token'] = access_token, ''
     access_token = session.get('access_token')
     if access_token is None:
         return redirect(url_for('login'))
@@ -80,21 +96,6 @@ def index():
     #g.user = session['id']
     #g.user = User.query.get(1)
     #print g.user
-    return render_template('index.html',user=user)
-    #return res.read()
-    
-@app.route('/login')
-def login():
-    callback=url_for('authorized', _external=True)
-    print "dopo qui"
-    return google.authorize(callback=callback)
-
-@app.route(REDIRECT_URI)
-@google.authorized_handler
-def authorized(resp):
-    print "authorized"
-    access_token = resp['access_token']
-    session['access_token'] = access_token, ''
     return redirect(url_for('index'))
 
 
