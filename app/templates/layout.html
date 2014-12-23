@@ -4,8 +4,8 @@
   filename='style.css') }}">
 <h1>Badge</h1>
 <ul class=navigation>
-  <li><a href="{{ url_for('index') }}">overview</a>
   {% if g.user %}
+  <li><a href="{{ url_for('index') }}">overview</a>
   <li><a href="{{ url_for('logout') }}">logout [{{ g.user.nome }}]</a>
   {% else %}
   <li><a href="{{ url_for('login') }}">login</a>

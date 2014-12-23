@@ -87,7 +87,8 @@ def authorized(resp):
     if user is None: #L'utente non e' nel db
       print('Authentication failed.')
       session.pop('access_token', None)
-      return redirect(url_for('login'))
+      flash("Accesso negato - utente non autorizzato")
+      return redirect(url_for('index'))
     
     
     session['id'] =  user.id
@@ -132,5 +133,5 @@ def logout():
         return res.read()
     '''    
     session.pop('access_token', None)
-    #flash('You were signed out')
+    flash('Logout eseguito con successo')
     return redirect(request.referrer or url_for('index'))
