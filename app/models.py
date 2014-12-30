@@ -21,18 +21,20 @@ class Orario(db.Model):
 class Entrata(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    entrata = db.Column(db.DateTime)
+    data = db.Column(db.Date)
+    ora = db.Column(db.Time)
     
     def __repr__(self):
-        return '<Entrata %r>' % (self.entrata)
+        return '<Entrata %r>' % (self.ora)
         
 class Uscita(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    uscita = db.Column(db.DateTime)
+    data = db.Column(db.Date)
+    ora = db.Column(db.Time)
     
     def __repr__(self):
-        return '<Uscita %r>' % (self.uscita)
+        return '<Uscita %r>' % (self.ora)
 
 '''        
 class Post(db.Model):

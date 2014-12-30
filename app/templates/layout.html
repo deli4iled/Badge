@@ -1,11 +1,12 @@
 <!doctype html>
-<title>{% block title %}Ciao{% endblock %} | Prova</title>
+<title>{% block title %}CRR Badge{% endblock %} | Prova</title>
 <link rel=stylesheet type=text/css href="{{ url_for('static',
   filename='style.css') }}">
 <h1>Badge</h1>
 <ul class=navigation>
   {% if g.user %}
-  <li><a href="{{ url_for('index') }}">overview</a>
+  <li><a href="{{ url_for('index') }}">index</a>
+  <li><a href="{{ url_for('overview') }}">overview</a>
   <li><a href="{{ url_for('logout') }}">logout [{{ g.user.nome }}]</a>
   {% else %}
   <li><a href="{{ url_for('login') }}">login</a>

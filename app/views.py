@@ -1,7 +1,7 @@
 from app import app, db
 from flask import Flask, redirect, url_for, session, g, render_template, flash, request
 from flask_oauth import OAuth
-from models import User
+from models import User, Entrata, Uscita
 import json
 
 # You must configure these 3 values from Google APIs console
@@ -134,4 +134,12 @@ def logout():
     '''    
     session.pop('access_token', None)
     flash('Logout eseguito con successo')
-    return redirect(request.referrer or url_for('index'))
+    return redirect(url_for('index'))
+    
+@app.route('/overview')
+def overview():
+  #cur = db.execute('select title, text from entries order by id desc')
+  #entries = [dict(title=row[0], text=row[1]) for row in cur.fetchall()]
+  entries = (db.session.query(User, Entrata, Uscita).join(Entrata).join(Uscita, Entrata.data == Uscita.data).filter(User.id== g.user.id)).all()
+  print "qui",entries
+  return render_template('show_entries.html', entries=entries)

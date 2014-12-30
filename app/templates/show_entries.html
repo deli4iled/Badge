@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block body %}
+  <table style="width:100%">
+  <tr class=title>
+    <td>Data</td>
+    <td>Entrata</td>
+    <td>Uscita</td>
+    <td>Ritardo</td>
+    <td>Ore presenza</td>
+    <td>Ore Giornaliere Valide</td>
+    <td>ROL</td>
+  </tr>
+  {% for entry in entries %}
+  <tr class=entries>
+    <td>{{entry.Entrata.data.strftime("%d/%m/%y")}}</td>
+    <td>{{entry.Entrata.ora.strftime("%H:%M")}}</td>
+    <td>{{entry.Uscita.ora.strftime("%H:%M")}}</td>
+    <td>{{ritardo(entry.Entrata.ora,entry.Entrata.data)}}</td>
+    <td>{{orePresenza(entry.Entrata.ora,entry.Uscita.ora,entry.Entrata.data)}}</td>
+    <td>{{oreGiornaliereValide(entry.Entrata.ora,entry.Uscita.ora)}}</td>
+    <td>{{ROL(entry.Entrata.ora)}}</td>
+  </tr>
+  {% else %}
+    <em>Non è stata registrata nessuna attività</em>
+  {% endfor %}
+{% endblock %}

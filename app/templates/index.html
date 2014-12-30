@@ -6,8 +6,7 @@
       Ciao {{ g.user.nome }}!  
   {% else %}
     <p>
-      Sign in to view your public timeline and to tweet from this
-      example application.
+      Fai il login per accedere al badge
     <p>
       <a href="{{ url_for('login') }}"><img src="{{
         url_for('static', filename='sign-in.png') }}" alt="sign in"></a>
