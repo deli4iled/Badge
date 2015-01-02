@@ -9,6 +9,7 @@ import json
 GOOGLE_CLIENT_ID = '555810068250-69s9rhvvu5uckg1vl4s2u7en4j7q73f2.apps.googleusercontent.com'
 GOOGLE_CLIENT_SECRET = 'Qp6EokGG3FEuULXEoA07252f'
 REDIRECT_URI = '/oauth2callback'  # one of the Redirect URIs from Google APIs console
+feste = [6,95,96,115,121,153,180,227,305,342,359,360]
 
 SECRET_KEY = 'development key'
 oauth = OAuth()
@@ -147,11 +148,41 @@ def overview():
   print "qui",entries
   return render_template('show_entries.html', entries=entries)
   
-@app.route('/checkin/entra')
+@app.route('/checkin/entra', methods=["GET", "POST"])
 def entra():
   import datetime
   
-  entrata = Entrata(user_id=g.user.id, data=datetime.datetime.now().date(),ora=datetime.datetime.now().time())
+  oggi = datetime.datetime.now()
+  
+  f = request.form
+  if f:
+    print f['entrata']
+    oggi = datetime.datetime.strptime(f['data']+" "+f['entrata'],"%d/%m/%y %H:%M")
+  #for key in f.keys():
+  #  for value in f.getlist(key):
+  #      print key,":",value
+  else:
+    ieri = oggi.date()-datetime.timedelta(1)
+    trovato=False
+    for entry in g.user.uscite:
+      if entry.data==ieri:
+        trovato=True
+        flash(entry.data)
+        flash(entry.ora)
+        
+        break
+    if not trovato:
+      flash("Il checkin in uscita ieri non e' stato effettuato")
+      entries = (db.session.query(User, Entrata).join(Entrata,Entrata.data == ieri).filter(Entrata.user_id==User.id).filter(User.id== g.user.id)).all()
+      flash(entries)
+      return render_template('add_entry.html', entries=entries, entrata=True)
+  
+  giorno = oggi.timetuple()
+  
+  if (giorno.tm_wday==5 or giorno.tm_wday==6 or giorno.tm_yday in feste):
+    flash("Giorno non lavorativo")
+    return render_template('checkin.html')
+  entrata = Entrata(user_id=g.user.id, data=oggi.date(),ora=oggi.time())
   for entry in g.user.entrate:
     if entry.data==entrata.data:
      flash("Il checkin in ingresso oggi e' gia' stato effettuato")
@@ -161,11 +192,41 @@ def entra():
   db.session.commit()
   flash(entrata)
   return render_template('checkin.html')
-@app.route('/checkin/esci')
+@app.route('/checkin/esci', methods=["GET", "POST"])
 def esci():
   import datetime
+  
+  oggi = datetime.datetime.now()
+  
+  f = request.form
+  if f:
+    print f['uscita']
+    oggi = datetime.datetime.strptime(f['data']+" "+f['uscita'],"%d/%m/%y %H:%M")
+  #for key in f.keys():
+  #  for value in f.getlist(key):
+  #      print key,":",value
+  else:
+    
+    trovato=False
+    for entry in g.user.entrate:
+      if entry.data==oggi.date():
+        trovato=True
+    if not trovato:
+      flash("Il checkin in entrata oggi non e' stato effettuato")
+      #entries = (db.session.query(User, Entrata).join(Entrata,Entrata.data == oggi).filter(Entrata.user_id==User.id).filter(User.id== g.user.id)).all()
+      entries = []
+      res = Entrata(user_id=g.user.id, data=oggi.date(),ora=oggi.time())
+      flash(entries)
+      return render_template('add_entry.html', entries=entries, res=res)
+  
+  giorno = oggi.timetuple()
+  
+  if (giorno.tm_wday==5 or giorno.tm_wday==6 or giorno.tm_yday in feste):
+    flash("Giorno non lavorativo")
+    return render_template('checkin.html')
 
-  uscita = Uscita(user_id=g.user.id, data=datetime.datetime.now().date(),ora=datetime.datetime.now().time())
+
+  uscita = Uscita(user_id=g.user.id, data=oggi.date(),ora=oggi.time())
   for entry in g.user.uscite:
     if entry.data==uscita.data:
      flash("Il checkin in uscita  di oggi e' stato posticipato")

@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block body %}
+ 
+  <table style="width:100%">
+  <tr class=title>
+    <td>Data</td>
+    <td>Entrata</td>
+    <td>Uscita</td>
+  </tr>
+  {% for entry in entries %}
+  <tr class=entries>
+      <form action="{{ url_for('esci') }}" method=post>
+      <td><input readonly="readonly" type=time name=data size=30 value="{{entry.Entrata.data.strftime("%d/%m/%y")}}"></td>
+      <td><input readonly="readonly" type=time name=entrata size=30  value="{{entry.Entrata.ora.strftime("%H:%M")}}"></td>
+      <td><input type=time name=uscita size=30  value="{{ request.values.time }}"></td>
+      <td><input type=submit value="Invia"></td>
+      
+     
+      </form>
+    
+  </tr>
+  {% else %}
+      <form action="{{ url_for('entra') }}" method=post>
+      {{res}}
+      <td><input readonly="readonly" type=time name=data size=30 value="{{res.data.strftime("%d/%m/%y")}}"></td>
+      <td><input readonly="readonly" type=time name=entrata size=30  value="{{res.ora.strftime("%H:%M")}}"></td>
+      <td><input type=time name=uscita size=30  value="{{ request.values.time }}"></td>
+      <td><input type=submit value="Invia"></td>
+  {% endfor %}
+{% endblock %}

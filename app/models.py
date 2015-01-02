@@ -10,11 +10,7 @@ class User(db.Model):
     def entra(self,entrata):
       #Controllare se c'e' gia' un'entrata nella giornata, in tal caso rifiutare l'ingresso
       #self.entrate.filter(self.entrate.c.data==entrata.data)
-      for entry in self.entrate:
-        if entry.data==entrata.data:
-          print "OK"
-        else:
-          print "non Ok"
+      
       self.entrate.append(entrata)
       return self
     def esci(self,uscita):
@@ -51,7 +47,14 @@ class Uscita(db.Model):
     
     def __repr__(self):
         return '<Uscita %r>' % (self.ora)
-
+        
+class ROL(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    data = db.Column(db.Date)
+    ore = db.Column(db.Integer)
+  
+  
 '''        
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key = True)
