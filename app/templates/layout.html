@@ -7,6 +7,7 @@
   {% if g.user %}
   <li><a href="{{ url_for('index') }}">index</a>
   <li><a href="{{ url_for('overview') }}">overview</a>
+  <li><a href="{{ url_for('checkin') }}">check in</a>
   <li><a href="{{ url_for('logout') }}">logout [{{ g.user.nome }}]</a>
   {% else %}
   <li><a href="{{ url_for('login') }}">login</a>

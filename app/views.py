@@ -140,6 +140,42 @@ def logout():
 def overview():
   #cur = db.execute('select title, text from entries order by id desc')
   #entries = [dict(title=row[0], text=row[1]) for row in cur.fetchall()]
-  entries = (db.session.query(User, Entrata, Uscita).join(Entrata).join(Uscita, Entrata.data == Uscita.data).filter(User.id== g.user.id)).all()
+  #entries = (db.session.query(User, Entrata, Uscita).join(Entrata).join(Uscita, Entrata.data == Uscita.data).filter(User.id== g.user.id)).all()
+  #entries = (db.session.query(User, Entrata, Uscita).join(Entrata).join(Uscita, Entrata.data == Uscita.data, Entrata.user_id==Uscita.user_id).filter(User.id== g.user.id)).all()
+  entries = (db.session.query(User, Entrata, Uscita).join(Entrata).join(Uscita, Entrata.data == Uscita.data).filter(Entrata.user_id==Uscita.user_id).filter(User.id== g.user.id)).all()
+  
   print "qui",entries
   return render_template('show_entries.html', entries=entries)
+  
+@app.route('/checkin/entra')
+def entra():
+  import datetime
+  
+  entrata = Entrata(user_id=g.user.id, data=datetime.datetime.now().date(),ora=datetime.datetime.now().time())
+  for entry in g.user.entrate:
+    if entry.data==entrata.data:
+     flash("Il checkin in ingresso oggi e' gia' stato effettuato")
+     return render_template('checkin.html')
+  
+  g.user.entra(entrata)
+  db.session.commit()
+  flash(entrata)
+  return render_template('checkin.html')
+@app.route('/checkin/esci')
+def esci():
+  import datetime
+
+  uscita = Uscita(user_id=g.user.id, data=datetime.datetime.now().date(),ora=datetime.datetime.now().time())
+  for entry in g.user.uscite:
+    if entry.data==uscita.data:
+     flash("Il checkin in uscita  di oggi e' stato posticipato")
+     db.session.delete(entry)
+     break
+  
+  g.user.esci(uscita)
+  db.session.commit()
+  flash(uscita)
+  return render_template('checkin.html')
+@app.route('/checkin')
+def checkin():
+  return render_template('checkin.html')

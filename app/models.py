@@ -7,6 +7,22 @@ class User(db.Model):
     entrate = db.relationship('Entrata', backref='utente', lazy='dynamic')
     uscite = db.relationship('Uscita', backref='utente', lazy='dynamic')
     
+    def entra(self,entrata):
+      #Controllare se c'e' gia' un'entrata nella giornata, in tal caso rifiutare l'ingresso
+      #self.entrate.filter(self.entrate.c.data==entrata.data)
+      for entry in self.entrate:
+        if entry.data==entrata.data:
+          print "OK"
+        else:
+          print "non Ok"
+      self.entrate.append(entrata)
+      return self
+    def esci(self,uscita):
+      #Controllare se c'e' gia' un'uscita nella giornata, in tal caso sostituire l'uscita
+      self.uscite.append(uscita)
+      return self
+      
+    
     def __repr__(self):
         return '<User %r>' % (self.nome)
 '''        
