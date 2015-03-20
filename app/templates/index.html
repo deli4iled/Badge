@@ -1,9 +1,8 @@
 {% extends "layout.html" %}
 {% block body %}
-  <h2>Overview</h2>
-  {% if g.user %}
-    <p>
-      Ciao {{ g.user.nome }}!  
+  <h2>
+    {% if g.user %}
+      Ciao {{ g.user.nome }}!   
   {% else %}
     <p>
       Fai il login per accedere al badge
@@ -11,4 +10,5 @@
       <a href="{{ url_for('login') }}"><img src="{{
         url_for('static', filename='sign-in.png') }}" alt="sign in"></a>
   {% endif %}
+  </h2>
 {% endblock %}
