@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block body %}
-  <table style="width:100%">
+  <table class="table table-hover" style="width:100%">
   <tr class=title>
     <td>Data</td>
     <td>Entrata</td>
@@ -11,7 +11,7 @@
     <td>ROL</td>
   </tr>
   {% for entry in entries %}
-  <tr class=entries>
+  <tr >
     <td>{{entry.Entrata.data.strftime("%d/%m/%y")}}</td>
     <td>{{entry.Entrata.ora.strftime("%H:%M")}}</td>
     <td>{{entry.Uscita.ora.strftime("%H:%M")}}</td>
