@@ -155,13 +155,14 @@ def entra():
   oggi = datetime.datetime.now()
   
   f = request.form
+  
   if f:
-    print f['entrata']
+    print "f['entrata']",f['entrata']
     oggi = datetime.datetime.strptime(f['data']+" "+f['entrata'],"%d/%m/%y %H:%M")
   #for key in f.keys():
   #  for value in f.getlist(key):
   #      print key,":",value
-  else:
+  else: 
     ieri = oggi.date()-datetime.timedelta(1)
     trovato=False
     for entry in g.user.uscite:
@@ -171,12 +172,13 @@ def entra():
         flash(entry.ora)
         
         break
+    '''#RIPRISTINARE
     if not trovato:
       flash("Il checkin in uscita ieri non e' stato effettuato")
       entries = (db.session.query(User, Entrata).join(Entrata,Entrata.data == ieri).filter(Entrata.user_id==User.id).filter(User.id== g.user.id)).all()
       flash(entries)
       return render_template('add_entry.html', entries=entries, entrata=True)
-  
+    '''
   giorno = oggi.timetuple()
   
   if (giorno.tm_wday==5 or giorno.tm_wday==6 or giorno.tm_yday in feste):
