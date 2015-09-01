@@ -36,9 +36,17 @@ def before_request():
 @app.route('/')
 @app.route('/index')
 def index():
-    
+    entrato=request.args.get('entrato')
+    print entrato
+    uscito=request.args.get('uscito')
+    if g.user:
+      if entrato==None:
+        entrato, entrata = checkEntrata()
+      if uscito==None:
+        uscito, uscita, entry = checkUscita()
+      print entrato
+      return render_template('index.html',entrato=entrato, uscito=uscito)
     return render_template('index.html')
-    #return res.read()
     
 @app.route('/login')
 def login():
@@ -147,35 +155,50 @@ def overview():
   print "qui",entries
   return render_template('show_entries.html', entries=entries)
   
-@app.route('/checkin/entra')
+@app.route('/entra')
 def entra():
-  import datetime
+  entrato, entrata = checkEntrata()
+  if not entrato:
+    g.user.entra(entrata)
+    db.session.commit()
+    flash(str(entrata))
+  return redirect(url_for('index', entrato=True))
   
+@app.route('/esci')
+def esci():  
+  entrato, entrata = checkEntrata()
+  flash("checkEntrata"+str(entrato))
+  if  entrato:    
+    uscito, uscita, entry = checkUscita()
+    if uscito:
+       flash("Il checkin in uscita  di oggi e' stato posticipato")
+       db.session.delete(entry)
+    g.user.esci(uscita)
+    db.session.commit()
+    flash(str(uscita))
+  return redirect(url_for('index', entrato=entrato, uscito=True))
+  
+#@app.route('/checkin')
+#def checkin():
+#  entrato, entrata = checkEntrata()
+#  flash(str(checkEntrata())+" "+str(checkUscita()))
+#  return render_template('index.html', entrato=entrato, uscito=checkUscita())
+
+
+#Utilities: spostare
+def checkEntrata():
+  import datetime  
   entrata = Entrata(user_id=g.user.id, data=datetime.datetime.now().date(),ora=datetime.datetime.now().time())
   for entry in g.user.entrate:
     if entry.data==entrata.data:
-     flash("Il checkin in ingresso oggi e' gia' stato effettuato")
-     return render_template('checkin.html')
+     return True, entrata
+  return False, entrata
   
-  g.user.entra(entrata)
-  db.session.commit()
-  flash(entrata)
-  return render_template('checkin.html')
-@app.route('/checkin/esci')
-def esci():
+def checkUscita():
   import datetime
-
   uscita = Uscita(user_id=g.user.id, data=datetime.datetime.now().date(),ora=datetime.datetime.now().time())
   for entry in g.user.uscite:
     if entry.data==uscita.data:
-     flash("Il checkin in uscita  di oggi e' stato posticipato")
-     db.session.delete(entry)
-     break
-  
-  g.user.esci(uscita)
-  db.session.commit()
-  flash(uscita)
-  return render_template('checkin.html')
-@app.route('/checkin')
-def checkin():
-  return render_template('checkin.html')
+     flash("Gia' uscito")
+     return True, uscita, entry
+  return False, uscita, entry

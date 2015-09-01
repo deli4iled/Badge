@@ -1,44 +1,51 @@
 <!doctype html>
-<title>{% block title %}CRR Badge{% endblock %} | Prova</title>
 
 <head>
 {% block head %}
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
-    <!-- Loading Bootstrap -->
-    <link href="static/Flat/dist/css/vendor/bootstrap.min.css" rel="stylesheet">
+  <!--<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">-->
+  <!-- Loading Bootstrap -->
+  <title>{% block title %}CRR Badge{% endblock %} | Prova</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="static/Flat/dist/css/vendor/bootstrap.min.css" rel="stylesheet">
+  <!-- Loading Flat UI -->
+  <link href="static/Flat/dist/css/flat-ui.min.css" rel="stylesheet">
 
-    <!-- Loading Flat UI -->
-    <link href="static/Flat/dist/css/flat-ui.min.css" rel="stylesheet">
-    <link href="static/Flat/docs/assets/css/demo.css" rel="stylesheet">
-
-    <link rel="shortcut icon" href="img/favicon.ico">
+  <link rel="shortcut icon" href="img/favicon.ico">
+  <script src="static/Flat/dist/js/vendor/jquery.min.js"></script>
+  <script src="static/Flat/dist/js/flat-ui.min.js"></script>
 {% endblock %}
 </head>
 
-<nav class="navbar navbar-inverse navbar-embossed" role="navigation">
-  <div class="navbar-header">
-    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-01">
-      <span class="sr-only">Toggle navigation</span>
-    </button>
-    <a class="navbar-brand" href="/index">CRR Badge</a>
-  </div>
-  <div class="collapse navbar-collapse" id="navbar-collapse-01">
-    <ul class="nav navbar-nav navbar-left">
-      {% if g.user %}
-      <li><a href="{{ url_for('index') }}">index</a>
-      <li><a href="{{ url_for('overview') }}">overview</a>
-      <li><a href="{{ url_for('checkin') }}">check in</a>
-      <li><a href="{{ url_for('logout') }}">logout [{{ g.user.nome }}]</a>
-      {% else %}
-      <li><a href="{{ url_for('login') }}">login</a>
-      {% endif %}
-     </ul>
-  </div><!-- /.navbar-collapse -->
-</nav><!-- /navbar -->
-  
-  
-
-{% for message in get_flashed_messages() %}
-  <p class=message>{{ message }}
-{% endfor %}
-{% block body %}{% endblock %}
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-12">
+        <nav class="navbar navbar-inverse navbar-embossed" role="navigation">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-01">
+              <span class="sr-only">Toggle navigation</span>
+            </button>
+            <a class="navbar-brand" href="/index">CRR Badge</a>
+          </div>
+          <div class="collapse navbar-collapse" id="navbar-collapse-01">
+            <ul class="nav navbar-nav navbar-left">
+              {% if g.user %}
+              
+              <li><a href="{{ url_for('overview') }}">overview</a>
+              <li><a href="{{ url_for('index') }}">check in</a>
+              <li><a href="{{ url_for('logout') }}">logout [{{ g.user.nome }}]</a>
+              {% else %}
+              <li><a href="{{ url_for('login') }}">login</a>
+              {% endif %}
+             </ul>
+          </div><!-- /.navbar-collapse -->
+        </nav><!-- /navbar -->
+      </div>
+    </div>
+    
+    {% block body %}{% endblock %}
+    {% for message in get_flashed_messages() %}
+    <p class=message>{{ message }}
+    {% endfor %}
+  </div>  
+</body>

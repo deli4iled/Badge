@@ -1,14 +1,29 @@
 {% extends "layout.html" %}
+
 {% block body %}
   <h2>
     {% if g.user %}
       Ciao {{ g.user.nome }}!   
+  </h2>
+  <!--<ul>-->
+    {% if not entrato %}
+      <button type="button" onclick="location.href='{{url_for('entra')}}'" value="Entra" class="btn btn-hg btn-wide btn-success navbar-btn " autofocus>Entra</button>
+    {% endif %}
+        
+    {% if entrato %}
+      <button type="button" onclick="location.href='{{url_for('esci')}}'" value="Esci" class="btn btn-hg btn-wide btn-danger navbar-btn " autofocus>Esci</button>
+
+    {% endif %}
+    <!--<li><a href=#>ROL</a>
+    <li><a href=#>Ferie/Permesso</a>
+    <li><a href=#>Malattia</a>
+  </ul>-->
   {% else %}
-    <p>
+   <p>
       Fai il login per accedere al badge
     <p>
       <a href="{{ url_for('login') }}"><img src="{{
         url_for('static', filename='sign-in.png') }}" alt="sign in"></a>
   {% endif %}
-  </h2>
+  
 {% endblock %}
