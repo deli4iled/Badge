@@ -1,30 +1,50 @@
 {% extends "layout.html" %}
 
 {% block body %}
-  <div class="row">
-    <div class="col-md-6">
-      <h2>
-      {% if g.user %}
-        Ciao {{ g.user.nome }}!   
-      </h2>
-    </div>  
-  </div>
-  <div class="row">
-    <div class="col-md-4 col-md-offset-4">
-    
-    {% if not entrato %}
-      <button type="button" onclick="location.href='{{url_for('entra')}}'" value="Entra" class="btn btn-hg btn-wide btn-success navbar-btn " autofocus>Entra</button>
-    {% endif %}
+  {% if g.user %}
+    <div class="row">
+      <div class="col-md-4">
+        <h2>      
+          Ciao {{ g.user.nome }}!   
+        </h2>
+      </div>  
+    {% if  entrata is defined %}
+        <div class="col-md-8">
+          <h4>
+            Oggi sei entrato alle 
+            <span class="label label-info">{{entrata}}</span>
+            </h4>
+            {% if  uscita is defined %}    
+            <h4>    
+              Sei uscito alle <span class="label label-info">{{uscita}}</span> 
+          </h4>
+          <h4>
+            Sei stato presente per <span class="label label-info">8 ore</span> 
+          </h4>
+          
+        </div>
+      </div>
+      {% endif %}
+      <div class="row">
+        <div class="col-md-4 col-md-offset-4">
         
-    {% if entrato %}
-      <button type="button" onclick="location.href='{{url_for('esci')}}'" value="Esci" class="btn btn-hg btn-wide btn-danger navbar-btn " autofocus>Esci</button>
-   
-    {% endif %}
-   </div>
-  </div>
-    
-  {% else %}
+          <button type="button" onclick="location.href='{{url_for('esci')}}'" value="Esci" class="btn btn-hg btn-wide btn-danger navbar-btn " autofocus>Esci</button>
+          
+        </div>
+      </div>
+      
+    {% else %}
      
+      <div class="row">
+        <div class="col-md-4 col-md-offset-4">   
+          <button type="button" onclick="location.href='{{url_for('entra')}}'" value="Entra" class="btn btn-hg btn-wide btn-success navbar-btn " autofocus>Entra</button>
+        </div>
+      </div>
+    {% endif %}
+  {% else %}
+     <div class="row">
+      <div class="col-md-6">
+        <h2>    
       Fai il login per accedere al badge
       </h2>
     </div>  

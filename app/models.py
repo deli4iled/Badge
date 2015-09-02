@@ -41,7 +41,7 @@ class Entrata(db.Model):
     ora = db.Column(db.Time)
     
     def __repr__(self):
-        return '<Entrata %r>' % (self.ora)
+        return (self.ora.strftime("%H:%M"))
         
 class Uscita(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -50,7 +50,7 @@ class Uscita(db.Model):
     ora = db.Column(db.Time)
     
     def __repr__(self):
-        return '<Uscita %r>' % (self.ora)
+        return (self.ora.strftime("%H:%M"))
 
 '''        
 class Post(db.Model):

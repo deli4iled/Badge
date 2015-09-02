@@ -58,11 +58,13 @@ def index():
       else:
         entrato, entrata = checkEntrata()
         uscito, uscita, entry = checkUscita()
-        session['entrata'] = str(entrata)
-        session['uscita'] = str(uscita)
+        if entrato:
+          session['entrata'] = str(entrata)
+        if uscito: 
+          session['uscita'] = str(uscita)
         session['data'] = str(datetime.datetime.now().date())
         
-      return render_template('index.html',entrato=entrato, uscito=uscito)
+      return render_template('index.html',entrata=entrata, uscita=uscita)
     return render_template('index.html')
     
 @app.route('/login')
@@ -211,7 +213,7 @@ def checkEntrata():
   entrata = Entrata(user_id=g.user.id, data=datetime.datetime.now().date(),ora=datetime.datetime.now().time())
   for entry in g.user.entrate:
     if entry.data==entrata.data:
-     return True, entrata
+     return True, entry
   return False, entrata
   
 def checkUscita():
