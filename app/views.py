@@ -41,8 +41,8 @@ def index():
     flash(session)
     if g.user:
      
-      entrato = False
-      uscito = False
+      entrata = None
+      uscita = None
       
       
       if session.get('data'): 
@@ -60,10 +60,14 @@ def index():
         uscito, uscita, entry = checkUscita()
         if entrato:
           session['entrata'] = str(entrata)
-        if uscito: 
-          session['uscita'] = str(uscita)
-        session['data'] = str(datetime.datetime.now().date())
-        
+          session['data'] = str(datetime.datetime.now().date())
+          if uscito: 
+            session['uscita'] = str(uscita)
+          else:
+            uscita = None
+        else:
+          entrata = None
+                
       return render_template('index.html',entrata=entrata, uscita=uscita)
     return render_template('index.html')
     
