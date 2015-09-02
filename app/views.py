@@ -2,6 +2,8 @@ from app import app, db
 from flask import Flask, redirect, url_for, session, g, render_template, flash, request
 from flask_oauth import OAuth
 from models import User, Entrata, Uscita
+import datetime  
+
 import json
 
 # You must configure these 3 values from Google APIs console
@@ -36,15 +38,30 @@ def before_request():
 @app.route('/')
 @app.route('/index')
 def index():
-    entrato=request.args.get('entrato')
-    print entrato
-    uscito=request.args.get('uscito')
+    flash(session)
     if g.user:
-      if entrato==None:
+     
+      entrato = False
+      uscito = False
+      
+      
+      if session.get('data'): 
+          if session['data']!= str(datetime.datetime.now().date()): #le entry sono antecedenti ad oggi
+            session.pop('data')              
+          else:
+            if session.get('entrata'):
+              entrato = True
+              entrata = session['entrata']
+              if session.get('uscita'):
+                uscita = True
+                uscita = session['uscita']
+      else:
         entrato, entrata = checkEntrata()
-      if uscito==None:
         uscito, uscita, entry = checkUscita()
-      print entrato
+        session['entrata'] = str(entrata)
+        session['uscita'] = str(uscita)
+        session['data'] = str(datetime.datetime.now().date())
+        
       return render_template('index.html',entrato=entrato, uscito=uscito)
     return render_template('index.html')
     
@@ -124,7 +141,7 @@ def before_request():
 
 @app.route('/logout')
 def logout():
-    session.pop('id', None)
+    session.pop('id', None) #forse togliere
     '''
     #https://accounts.google.com/o/oauth2/revoke?token={token}
     access_token = get_access_token()
@@ -140,7 +157,8 @@ def logout():
             return redirect(url_for('login'))
         return res.read()
     '''    
-    session.pop('access_token', None)
+    session.pop('access_token', None) #forse togliere
+    session.clear()
     flash('Logout eseguito con successo')
     return redirect(url_for('index'))
     
@@ -161,22 +179,25 @@ def entra():
   if not entrato:
     g.user.entra(entrata)
     db.session.commit()
-    flash(str(entrata))
-  return redirect(url_for('index', entrato=True))
+    session['entrata'] = str(entrata)
+    session['data'] = str(datetime.datetime.now().date())
+    flash(str(session))
+  return redirect(url_for('index'))
   
 @app.route('/esci')
 def esci():  
-  entrato, entrata = checkEntrata()
-  flash("checkEntrata"+str(entrato))
-  if  entrato:    
+  if  session.get('entrata'):    
     uscito, uscita, entry = checkUscita()
+    flash('ENTRATO')
     if uscito:
        flash("Il checkin in uscita  di oggi e' stato posticipato")
        db.session.delete(entry)
     g.user.esci(uscita)
     db.session.commit()
+    session['uscita'] = str(uscita)
+    session['data'] = str(datetime.datetime.now().date())
     flash(str(uscita))
-  return redirect(url_for('index', entrato=entrato, uscito=True))
+  return redirect(url_for('index'))
   
 #@app.route('/checkin')
 #def checkin():
@@ -187,7 +208,6 @@ def esci():
 
 #Utilities: spostare
 def checkEntrata():
-  import datetime  
   entrata = Entrata(user_id=g.user.id, data=datetime.datetime.now().date(),ora=datetime.datetime.now().time())
   for entry in g.user.entrate:
     if entry.data==entrata.data:
@@ -195,7 +215,6 @@ def checkEntrata():
   return False, entrata
   
 def checkUscita():
-  import datetime
   uscita = Uscita(user_id=g.user.id, data=datetime.datetime.now().date(),ora=datetime.datetime.now().time())
   for entry in g.user.uscite:
     if entry.data==uscita.data:
