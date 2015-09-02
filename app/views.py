@@ -57,7 +57,7 @@ def index():
                 uscita = session['uscita']
       else:
         entrato, entrata = checkEntrata()
-        uscito, uscita, entry = checkUscita()
+        uscito, new_uscita, uscita = checkUscita()
         if entrato:
           session['entrata'] = str(entrata)
           session['data'] = str(datetime.datetime.now().date())
@@ -67,8 +67,7 @@ def index():
             uscita = None
         else:
           entrata = None
-                
-      return render_template('index.html',entrata=entrata, uscita=uscita)
+      return render_template('index.html',entrata=str(entrata), uscita=str(uscita))
     return render_template('index.html')
     
 @app.route('/login')

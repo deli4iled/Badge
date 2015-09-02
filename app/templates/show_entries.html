@@ -17,7 +17,7 @@
     <td>{{entry.Uscita.ora.strftime("%H:%M")}}</td>
     <td>{{ritardo(entry.Entrata.ora,entry.Entrata.data)}}</td>
     <td>{{orePresenza(entry.Entrata.ora,entry.Uscita.ora,entry.Entrata.data)}}</td>
-    <td>{{oreGiornaliereValide(entry.Entrata.ora,entry.Uscita.ora)}}</td>
+    <td>{{oreGiornaliereValide(entry.Entrata.ora.strftime("%H:%M"),entry.Uscita.ora.strftime("%H:%M"))}}</td>
     <td>{{ROL(entry.Entrata.ora)}}</td>
   </tr>
   {% else %}

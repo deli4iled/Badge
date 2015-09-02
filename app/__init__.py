@@ -25,8 +25,8 @@ def ritardo(entrata, data):
     return datetime.datetime.strptime(entrata.strftime("%H:%M"), FMT) - datetime.datetime.strptime(orarioIngresso, FMT)
 
 def oreGiornaliereValide(entrata, uscita):
-  entrata = datetime.datetime.strptime(entrata.strftime("%H:%M"), FMT)
-  uscita = datetime.datetime.strptime(uscita.strftime("%H:%M"), FMT)
+  entrata = datetime.datetime.strptime(entrata, FMT)
+  uscita = datetime.datetime.strptime(uscita, FMT)
   ingressoOk = datetime.datetime.strptime(orarioIngresso, FMT)
   maxOre = datetime.timedelta(hours=maxNumOre)
   minOre = datetime.timedelta(hours=minNumOre)
