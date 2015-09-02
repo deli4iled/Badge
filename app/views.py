@@ -220,4 +220,4 @@ def checkUscita():
     if entry.data==uscita.data:
      flash("Gia' uscito")
      return True, uscita, entry
-  return False, uscita, entry
+  return False, uscita, None
