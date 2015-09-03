@@ -18,6 +18,24 @@ import datetime
 def orePresenza(entrata, uscita, data):
   return datetime.datetime.combine(data, uscita) - datetime.datetime.combine(data, entrata)
 
+def oreMensiliDaRecuperare(entries):
+  oreTotali = datetime.timedelta(hours=0)
+  oreDovute = datetime.timedelta(hours=len(entries)*minNumOre)
+  for entry in entries:
+    oreTotali+=oreGiornaliereValide(entry.Entrata.ora.strftime("%H:%M"),entry.Uscita.ora.strftime("%H:%M"))
+  if oreTotali>oreDovute: 
+    return None
+    
+  return oreDovute-oreTotali
+
+def ROLMensiliPerRitardo(entries):
+  rol = datetime.timedelta(hours=0)
+  for entry in entries:
+    rol+=ROL(entry.Entrata.ora)
+  print rol 
+  return rol    
+
+
 def ritardo(entrata, data):
   if datetime.datetime.strptime(entrata.strftime("%H:%M"), FMT) <= datetime.datetime.strptime(orarioIngresso, FMT):
     return "0:00:00"
@@ -43,10 +61,12 @@ def ROL(entrata):
   if(entrata>=ingressoMax):
     return entrata-ingressoOk
   else:
-    return 0
+    return datetime.timedelta(0)
   
 
 app.jinja_env.globals.update(orePresenza=orePresenza)
 app.jinja_env.globals.update(ritardo=ritardo)
 app.jinja_env.globals.update(oreGiornaliereValide=oreGiornaliereValide)
 app.jinja_env.globals.update(ROL=ROL)
+app.jinja_env.globals.update(oreMensiliDaRecuperare=oreMensiliDaRecuperare)
+app.jinja_env.globals.update(ROLMensiliPerRitardo=ROLMensiliPerRitardo)

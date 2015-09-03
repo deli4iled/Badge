@@ -1,5 +1,6 @@
 from app import app, db
 from flask import Flask, redirect, url_for, session, g, render_template, flash, request
+from sqlalchemy import extract
 from flask_oauth import OAuth
 from models import User, Entrata, Uscita
 import datetime  
@@ -43,7 +44,7 @@ def index():
      
       entrata = None
       uscita = None
-      
+      entries = entriesMese()
       
       if session.get('data'): 
           if session['data']!= str(datetime.datetime.now().date()): #le entry sono antecedenti ad oggi
@@ -67,7 +68,7 @@ def index():
             uscita = None
         else:
           entrata = None
-      return render_template('index.html',entrata=str(entrata), uscita=str(uscita))
+      return render_template('index.html',entrata=str(entrata), uscita=str(uscita), entries=entries)
     return render_template('index.html')
     
 @app.route('/login')
@@ -226,3 +227,8 @@ def checkUscita():
      flash("Gia' uscito")
      return True, uscita, entry
   return False, uscita, None
+
+def entriesMese():
+  data=datetime.datetime.now().date().month
+  return (db.session.query(Entrata, Uscita).join(Uscita, Entrata.data == Uscita.data).filter(Entrata.user_id==Uscita.user_id).filter(User.id== g.user.id).filter(extract('month', Entrata.data)==data)).all()
+  
