@@ -6,13 +6,13 @@
   <!-- Loading Bootstrap -->
   <title>{% block title %}PPP{% endblock %} | Prova</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="static/Flat/dist/css/vendor/bootstrap.min.css" rel="stylesheet">
+  <!--<link href="static/Flat/dist/css/vendor/bootstrap.min.css" rel="stylesheet">-->
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='Flat/dist/css/vendor/bootstrap.min.css') }}">
   <!-- Loading Flat UI -->
-  <link href="static/Flat/dist/css/flat-ui.min.css" rel="stylesheet">
-
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='Flat/dist/css/flat-ui.min.css') }}">
   <link rel="shortcut icon" href="img/favicon.ico">
-  <script src="static/Flat/dist/js/vendor/jquery.min.js"></script>
-  <script src="static/Flat/dist/js/flat-ui.min.js"></script>
+  <script src="{{ url_for('static', filename='Flat/dist/js/vendor/jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='Flat/dist/js/flat-ui.min.js') }}"></script>
 {% endblock %}
 </head>
 

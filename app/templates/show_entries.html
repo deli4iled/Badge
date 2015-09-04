@@ -1,5 +1,40 @@
 {% extends "layout.html" %}
 {% block body %}
+
+<script type=text/javascript>
+  
+$(document).ready(function(){
+  $("select").select2({dropdownCssClass: 'dropdown-inverse'});
+  });
+</script>
+  <div class="row">
+    {% with years = years() %}
+      <div class="col-md-4 ">
+        <select class="form-control select select-primary select-block mbl ">
+          {% for year in years %}
+            {% if loop.index+2010-1 == date_now().year %} <!--TODO togliere 2010 -->
+              <option value="{{year}}" selected>{{year}}</option>
+            {% else %}
+              <option value="{{year}}">{{year}}</option>
+            {% endif %}
+          {% endfor %}
+        </select>          
+      </div>
+    {% endwith %}
+    {% with months = months() %}
+      <div class="col-md-4 ">        
+        <select class="form-control form-control select select-primary select-block mbl" >
+            {% for month in months %}
+              {% if loop.index|string == sel_month|string %}
+                <option value="{{month}}" selected>{{month}}</option>
+              {% else %}
+                <option value="{{month}}">{{month}} </option>
+              {% endif %}
+            {% endfor %}
+        </select>          
+      </div>
+    {% endwith %}
+  </div>
   <table class="table table-hover" style="width:100%">
     <thead>
       <tr class=title>
@@ -12,7 +47,7 @@
         <th>ROL</th>
       </tr>
     </thead>
-  {% with entries = g.user.entrate_uscite_totali() %}
+  {% with entries = g.user.entrate_uscite_totali(sel_month) %}
     {% for entry in entries %}
       <tr >
         <td>{{entry.Entrata.data.strftime("%d/%m/%y")}}</td>

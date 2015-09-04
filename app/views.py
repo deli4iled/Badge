@@ -169,12 +169,13 @@ def logout():
     return redirect(url_for('index'))
     
 @app.route('/overview')
-def overview():
- 
+@app.route('/overview/<month>')
+def overview(month=datetime.datetime.now().date().month):
+  
   #entries = (db.session.query(User, Entrata, Uscita).join(Entrata).join(Uscita, Entrata.data == Uscita.data).filter(Entrata.user_id==Uscita.user_id).filter(User.id== g.user.id)).all()
   #entries = g.user.entrate_uscite_totali()
   #print "qui",entries
-  return render_template('show_entries.html')
+  return render_template('show_entries.html', sel_month=month)
   
 @app.route('/entra')
 def entra():
@@ -203,10 +204,40 @@ def esci():
   return redirect(url_for('index'))
 
 @app.context_processor
-def utility_processor():
+def up_date():
     def date_now():
         return datetime.datetime.now().date()
     return dict(date_now=date_now)
+
+@app.context_processor
+def up_years():
+    def years():
+      starting_year = datetime.datetime(2010,1,1).year
+      current_year = datetime.datetime.now().date().year
+      delta = current_year - starting_year
+      years = []
+      for i in range(delta+1):
+        years.append(starting_year+i)
+      print years
+      return years
+    return dict(years=years)
+    
+@app.context_processor
+def up_months():
+    def months():
+      months = [ "Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"]
+      curr_month = datetime.datetime.now().date().month
+      '''
+        starting_year = datetime.datetime(2010,1,1).year
+        current_year = datetime.datetime.now().date().year
+        delta = current_year - starting_year
+        years = []
+        for i in range(delta+1):
+          years.append(starting_year+i)
+      '''
+      print curr_month
+      return months
+    return dict(months=months)
 #@app.route('/checkin')
 #def checkin():
 #  entrato, entrata = checkEntrata()
