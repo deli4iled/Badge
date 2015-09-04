@@ -58,6 +58,10 @@ class User(db.Model):
         return oreTot<=minOre and oreTot or minOre
       
     def oreMensiliDaRecuperare(self, mese):
+          
+      return self.oreMensiliValide(mese)+self.totaleRitardi(mese)
+      
+    def oreMensiliValide(self, mese):
       entries = self.entrate_uscite_totali(mese)
       oreTotali = datetime.timedelta(hours=0)
       oreDovute = datetime.timedelta(hours=len(entries)*minNumOre)
@@ -67,7 +71,14 @@ class User(db.Model):
         return None
         
       return oreDovute-oreTotali
-      
+    
+    def totaleRitardi(self, mese):
+      entries = self.entrate_uscite_totali(mese)
+      ritardiTotali = datetime.timedelta(hours=0)
+      for entry in entries:
+        ritardiTotali+=entry.Entrata.ritardo()
+      return ritardiTotali
+        
       '''
       entrata = datetime.datetime.strptime(entrata, FMT)
       uscita = datetime.datetime.strptime(uscita, FMT)
@@ -102,7 +113,7 @@ class Entrata(db.Model):
     
     def ritardo(self):
       if datetime.datetime.strptime(self.ora.strftime("%H:%M"), FMT) <= datetime.datetime.strptime(orarioIngresso, FMT):
-        return "0:00:00"
+        return datetime.timedelta(0)
       else: 
         return datetime.datetime.strptime(self.ora.strftime("%H:%M"), FMT) - datetime.datetime.strptime(orarioIngresso, FMT)
     

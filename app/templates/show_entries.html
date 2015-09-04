@@ -1,15 +1,17 @@
 {% extends "layout.html" %}
 {% block body %}
   <table class="table table-hover" style="width:100%">
-  <tr class=title>
-    <td>Data</td>
-    <td>Entrata</td>
-    <td>Uscita</td>
-    <td>Ritardo</td>
-    <td>Ore presenza</td>
-    <td>Ore Giornaliere Valide</td>
-    <td>ROL</td>
-  </tr>
+    <thead>
+      <tr class=title>
+        <th>Data</th>
+        <th>Entrata</th>
+        <th>Uscita</th>
+        <th>Ritardo</th>
+        <th>Ore presenza</th>
+        <th>Ore Giornaliere Valide</th>
+        <th>ROL</th>
+      </tr>
+    </thead>
   {% with entries = g.user.entrate_uscite_totali() %}
     {% for entry in entries %}
       <tr >
