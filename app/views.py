@@ -169,13 +169,13 @@ def logout():
     return redirect(url_for('index'))
     
 @app.route('/overview')
-@app.route('/overview/<month>')
-def overview(month=datetime.datetime.now().date().month):
+@app.route('/overview/<month>/<year>')
+def overview(month=datetime.datetime.now().date().month,year=datetime.datetime.now().date().year):
   
   #entries = (db.session.query(User, Entrata, Uscita).join(Entrata).join(Uscita, Entrata.data == Uscita.data).filter(Entrata.user_id==Uscita.user_id).filter(User.id== g.user.id)).all()
   #entries = g.user.entrate_uscite_totali()
   #print "qui",entries
-  return render_template('show_entries.html', sel_month=month)
+  return render_template('show_entries.html', sel_month=month, sel_year=year)
   
 @app.route('/entra')
 def entra():

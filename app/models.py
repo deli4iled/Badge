@@ -33,11 +33,15 @@ class User(db.Model):
       #(db.session.query(User, Entrata, Uscita).join(Entrata).join(Uscita, Entrata.data == Uscita.data).filter(Entrata.user_id==Uscita.user_id).filter(User.id== g.user.id)).all()
       #return (db.session.query(User, Entrata, Uscita).join(Entrata).join(Uscita, Entrata.data == Uscita.data).filter(Entrata.user_id==Uscita.user_id).filter(User.id== self.id)).all()
       
-    def entrate_uscite_totali(self, mese=None):
+    def entrate_uscite_totali(self, mese=None, anno=None):
       #(db.session.query(User, Entrata, Uscita).join(Entrata).join(Uscita, Entrata.data == Uscita.data).filter(Entrata.user_id==Uscita.user_id).filter(User.id== g.user.id)).all()
-      if mese==None:
+      if mese==None and anno==None:
         return (db.session.query(User, Entrata, Uscita).join(Entrata).join(Uscita, Entrata.data == Uscita.data).filter(Entrata.user_id==Uscita.user_id).filter(User.id== self.id)).all()
-      return (db.session.query(User, Entrata, Uscita).join(Entrata).join(Uscita, Entrata.data == Uscita.data).filter(Entrata.user_id==Uscita.user_id).filter(User.id== self.id).filter(extract('month',Entrata.data)== mese)).all()
+      if mese==None:
+        return (db.session.query(User, Entrata, Uscita).join(Entrata).join(Uscita, Entrata.data == Uscita.data).filter(Entrata.user_id==Uscita.user_id).filter(User.id== self.id).filter(extract('year',Entrata.data)== anno)).all()
+      if anno==None:
+        return (db.session.query(User, Entrata, Uscita).join(Entrata).join(Uscita, Entrata.data == Uscita.data).filter(Entrata.user_id==Uscita.user_id).filter(User.id== self.id).filter(extract('month',Entrata.data)== mese)).all()
+      return (db.session.query(User, Entrata, Uscita).join(Entrata).join(Uscita, Entrata.data == Uscita.data).filter(Entrata.user_id==Uscita.user_id).filter(User.id== self.id).filter(extract('month',Entrata.data)== mese).filter(extract('year',Entrata.data)== anno)).all()
       
     def orePresenzaGiornaliere(self,data):
       entrata = datetime.datetime.strptime(Entrata.query.filter(Entrata.data == data).filter(Entrata.user_id == self.id).first().ora.strftime("%H:%M"), FMT) 
@@ -59,7 +63,10 @@ class User(db.Model):
       
     def oreMensiliDaRecuperare(self, mese):
           
-      return self.oreMensiliValide(mese)+self.totaleRitardi(mese)
+      totale= self.oreMensiliValide(mese)+self.totaleRitardi(mese)
+      if totale < datetime.timedelta(0):
+        return None
+      return totale
       
     def oreMensiliValide(self, mese):
       entries = self.entrate_uscite_totali(mese)
@@ -67,8 +74,8 @@ class User(db.Model):
       oreDovute = datetime.timedelta(hours=len(entries)*minNumOre)
       for entry in entries:
         oreTotali+=self.oreGiornaliereValide(entry.Entrata.data)
-      if oreTotali>oreDovute: 
-        return None
+      #if oreTotali>oreDovute: 
+        #return datetime.timedelta(0)
         
       return oreDovute-oreTotali
     
