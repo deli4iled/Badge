@@ -41,7 +41,7 @@ def before_request():
 def index():
     flash(session)
     if g.user:
-     
+      
       entrata = None
       uscita = None
       entries = entriesMese()
@@ -170,14 +170,11 @@ def logout():
     
 @app.route('/overview')
 def overview():
-  #cur = db.execute('select title, text from entries order by id desc')
-  #entries = [dict(title=row[0], text=row[1]) for row in cur.fetchall()]
-  #entries = (db.session.query(User, Entrata, Uscita).join(Entrata).join(Uscita, Entrata.data == Uscita.data).filter(User.id== g.user.id)).all()
-  #entries = (db.session.query(User, Entrata, Uscita).join(Entrata).join(Uscita, Entrata.data == Uscita.data, Entrata.user_id==Uscita.user_id).filter(User.id== g.user.id)).all()
-  entries = (db.session.query(User, Entrata, Uscita).join(Entrata).join(Uscita, Entrata.data == Uscita.data).filter(Entrata.user_id==Uscita.user_id).filter(User.id== g.user.id)).all()
-  
-  print "qui",entries
-  return render_template('show_entries.html', entries=entries)
+ 
+  #entries = (db.session.query(User, Entrata, Uscita).join(Entrata).join(Uscita, Entrata.data == Uscita.data).filter(Entrata.user_id==Uscita.user_id).filter(User.id== g.user.id)).all()
+  #entries = g.user.entrate_uscite_totali()
+  #print "qui",entries
+  return render_template('show_entries.html')
   
 @app.route('/entra')
 def entra():
@@ -204,7 +201,12 @@ def esci():
     session['data'] = str(datetime.datetime.now().date())
     flash(str(uscita))
   return redirect(url_for('index'))
-  
+
+@app.context_processor
+def utility_processor():
+    def date_now():
+        return datetime.datetime.now().date()
+    return dict(date_now=date_now)
 #@app.route('/checkin')
 #def checkin():
 #  entrato, entrata = checkEntrata()
