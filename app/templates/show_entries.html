@@ -49,7 +49,7 @@ $(document).ready(function(){
   </div>
   <table class="table table-hover" style="width:100%">
     <thead>
-      <tr class=title>
+      <tr class="title">
         <th>Data</th>
         <th>Entrata</th>
         <th>Uscita</th>
@@ -59,19 +59,33 @@ $(document).ready(function(){
         <th>ROL</th>
       </tr>
     </thead>
-  {% with entries = g.user.entrate_uscite_totali(sel_month, sel_year) %}
-    {% for entry in entries %}
-      <tr >
-        <td>{{entry.Entrata.data.strftime("%d/%m/%y")}}</td>
-        <td>{{entry.Entrata.ora.strftime("%H:%M")}}</td>
-        <td>{{entry.Uscita.ora.strftime("%H:%M")}}</td>
-        <td>{{entry.Entrata.ritardo()}}</td>
-        <td>{{g.user.orePresenzaGiornaliere(entry.Entrata.data)}}</td>
-        <td>{{g.user.oreGiornaliereValide(entry.Entrata.data)}}</td>
-        <td>{{entry.Entrata.ROL()}}</td>
-      </tr>
-    {% else %}
-        <em>Non è stata registrata nessuna attività</em>
-    {% endfor %}
-  {% endwith %}
+  {% set entries = g.user.entrate_uscite_totali(sel_month, sel_year) %}
+  {% for entry in entries %}
+    <tr >
+      <td>{{entry.Entrata.data.strftime("%d/%m/%y")}}</td>
+      <td>{{entry.Entrata.ora.strftime("%H:%M")}}</td>
+      <td>{{entry.Uscita.ora.strftime("%H:%M")}}</td>
+      <td>{{entry.Entrata.ritardoNoROL()}}</td>
+      <td>{{g.user.orePresenzaGiornaliere(entry.Entrata.data)}}</td>
+      <td>{{g.user.oreGiornaliereValide(entry.Entrata.data)}}</td>
+      <td>{{entry.Entrata.ROL()}}</td>
+    </tr>
+  {% else %}
+      <em>Non è stata registrata nessuna attività</em>
+  {% endfor %}
+  <tfoot >
+    <tr class="info">
+      {% set oreMensili=g.user.oreMensiliTotali(sel_month, sel_year, entries)%}
+      {% set avg=g.user.avg(sel_month, sel_year, entries) %}
+      <td>Totali</td>
+      <td>{{avg['entrata']}} (media)</td>
+      <td>{{avg['uscita']}} (media)</td>
+      <td>{{g.user.totaleRitardi(sel_month, sel_year,entries)}}</td>
+      <td>{{oreMensili.days*24+oreMensili.seconds//3600}}:{{'{:02d}'.format((oreMensili.seconds//60)%60)}}:00</td>
+      {% set oreValide=g.user.oreMensiliValide(sel_month, sel_year, entries)%}
+      {% set oreDovute=g.user.oreDovuteMese(sel_month, sel_year, entries)%}
+      <td>{{oreValide.days*24+oreValide.seconds//3600}}:{{'{:02d}'.format((oreValide.seconds//60)%60)}}:00 / {{oreDovute.days*24+oreDovute.seconds//3600}}:{{'{:02d}'.format((oreDovute.seconds//60)%60)}}:00</td>
+      <td>{{g.user.ROLMensili(sel_month, sel_year,entries)}}</td>
+    </tr>
+  </tfoot>
 {% endblock %}

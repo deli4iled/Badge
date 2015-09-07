@@ -48,6 +48,14 @@ class User(db.Model):
       uscita = datetime.datetime.strptime(Uscita.query.filter(Uscita.data == data).filter(Uscita.user_id == self.id).first().ora.strftime("%H:%M"), FMT) 
       return uscita - entrata 
     
+    def oreMensiliTotali(self, mese, anno, entries=None):
+      if entries==None:
+        entries = self.entrate_uscite_totali(mese, anno)
+      oreTotali = datetime.timedelta(hours=0)
+      for entry in entries:
+        oreTotali+=self.orePresenzaGiornaliere(entry.Entrata.data)      
+      return oreTotali
+    
     def oreGiornaliereValide(self,data):
       #TODO controllo se data non e' presente in db
       uscita = datetime.datetime.strptime(Uscita.query.filter(Uscita.data == data).filter(Uscita.user_id == self.id).first().ora.strftime("%H:%M"), FMT) 
@@ -63,31 +71,59 @@ class User(db.Model):
       else:
         return oreTot<=minOre and oreTot or minOre
       
-    def oreMensiliDaRecuperare(self, mese):
-          
-      totale= self.oreMensiliValide(mese)+self.totaleRitardi(mese)
+    def oreDovuteMese(self, mese, anno, entries=None):
+      if entries==None:
+        entries = self.entrate_uscite_totali(mese, anno)
+      return datetime.timedelta(hours=len(entries)*minNumOre)      
+    
+    def oreMensiliDaRecuperare(self, mese,anno):
+     
+      totale= self.oreDovuteMese(mese,anno)-self.oreMensiliValide(mese,anno)+self.totaleRitardi(mese,anno)
+      print totale
       if totale < datetime.timedelta(0):
         return None
       return totale
-      
-    def oreMensiliValide(self, mese):
-      entries = self.entrate_uscite_totali(mese)
+       
+    
+    def oreMensiliValide(self, mese, anno, entries=None):
+      if entries==None:
+        entries = self.entrate_uscite_totali(mese, anno)
       oreTotali = datetime.timedelta(hours=0)
-      oreDovute = datetime.timedelta(hours=len(entries)*minNumOre)
       for entry in entries:
         oreTotali+=self.oreGiornaliereValide(entry.Entrata.data)
-      #if oreTotali>oreDovute: 
-        #return datetime.timedelta(0)
-        
-      return oreDovute-oreTotali
+      
+      return oreTotali
     
-    def totaleRitardi(self, mese):
-      entries = self.entrate_uscite_totali(mese)
+    
+    def totaleRitardi(self, mese, anno, entries=None):
+      if entries==None:
+        entries = self.entrate_uscite_totali(mese, anno)
       ritardiTotali = datetime.timedelta(hours=0)
       for entry in entries:
-        ritardiTotali+=entry.Entrata.ritardo()
+        ritardiTotali+=entry.Entrata.ritardoNoROL()
       return ritardiTotali
-        
+      
+    def ROLMensili(self, mese, anno,entries):
+      if entries==None:
+        entries = self.entrate_uscite_totali(mese, anno)
+      ROLTotali = datetime.timedelta(hours=0)
+      for entry in entries:
+        ROLTotali+=entry.Entrata.ROL()
+      return ROLTotali
+      
+    def avg(self, mese, anno,entries):
+      if entries==None:
+        entries = self.entrate_uscite_totali(mese, anno)
+      sumEntrate = 0
+      sumUscite = 0
+      for entry in entries:
+        sumEntrate+=entry.Entrata.ora.hour*3600+entry.Entrata.ora.minute*60 
+        sumUscite+=entry.Uscita.ora.hour*3600+entry.Uscita.ora.minute*60
+     
+      avgEntrate=sumEntrate/len(entries)
+      avgUscite=sumUscite/len(entries)
+      return {'entrata':datetime.timedelta(seconds=avgEntrate), 'uscita':datetime.timedelta(seconds=avgUscite)}
+      #return sumEntrate/len(entry),sumUscite/len(entry) 
       '''
       entrata = datetime.datetime.strptime(entrata, FMT)
       uscita = datetime.datetime.strptime(uscita, FMT)
@@ -121,6 +157,7 @@ class Entrata(db.Model):
     ora = db.Column(db.Time)
     
     def ritardo(self):
+      #se e' ROL non e' ritardo
       if datetime.datetime.strptime(self.ora.strftime("%H:%M"), FMT) <= datetime.datetime.strptime(orarioIngresso, FMT):
         return datetime.timedelta(0)
       else: 
@@ -132,10 +169,23 @@ class Entrata(db.Model):
       
       maxRitardo = datetime.datetime.strptime(maxOrarioIngr, FMT) - orarioIngresso
       ritardo = self.ritardo()
+      
       if ritardo >= maxRitardo:
         return entrata - orarioIngresso
       else:
         return datetime.timedelta(0)
+        
+    def ritardoNoROL(self):
+      orarioIngresso = datetime.datetime.strptime(constants.orarioIngresso, FMT)
+      entrata = datetime.datetime.strptime(self.ora.strftime(FMT), FMT)
+      
+      maxRitardo = datetime.datetime.strptime(maxOrarioIngr, FMT) - orarioIngresso
+      ritardo = self.ritardo()
+      
+      if ritardo >= maxRitardo:
+        return datetime.timedelta(0)
+      else:
+        return ritardo
       
     
     def __repr__(self):

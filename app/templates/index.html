@@ -22,7 +22,7 @@
                 Sei stato presente per <span class="label label-info">{{g.user.oreGiornaliereValide(date_now())}}</span> 
               </h4>
             {% endif %}
-            {% with oreDaRec=g.user.oreMensiliDaRecuperare(date_now().month) %}
+            {% with oreDaRec=g.user.oreMensiliDaRecuperare(date_now().month,date_now().year) %}
               {% if oreDaRec|string() != 'None'%}
                 <h4>
                   Questo mese devi recuperare <span class="label label-info">{{oreDaRec}}</span> 
