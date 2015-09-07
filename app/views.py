@@ -47,18 +47,22 @@ def index():
       entries = entriesMese()
       
       if session.get('data'): 
-          if session['data']!= str(datetime.datetime.now().date()): #le entry sono antecedenti ad oggi
-            session.pop('data')              
-          else:
-            if session.get('entrata'):
-              entrato = True
-              entrata = session['entrata']
-              if session.get('uscita'):
-                uscita = True
-                uscita = session['uscita']
+        if session['data']!= str(datetime.datetime.now().date()): #le entry sono antecedenti ad oggi
+          session.pop('data')
+          session.pop('entrata')
+          session.pop('uscita')              
+        else:
+          if session.get('entrata'):
+            entrato = True
+            entrata = session['entrata']
+            if session.get('uscita'):
+              uscita = True
+              uscita = session['uscita']
+        flash(uscita,entrata)
       else:
         entrato, entrata = checkEntrata()
         uscito, new_uscita, uscita = checkUscita()
+        flash(uscito)
         if entrato:
           session['entrata'] = str(entrata)
           session['data'] = str(datetime.datetime.now().date())
