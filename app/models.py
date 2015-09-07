@@ -56,6 +56,8 @@ class User(db.Model):
       maxOre = datetime.timedelta(hours=maxNumOre)
       minOre = datetime.timedelta(hours=minNumOre)
       oreTot=uscita-entrata
+      if oreTot == datetime.timedelta(0):
+        return oreTot
       if (entrata<=ingressoOk):    
         return oreTot<=maxOre and oreTot or maxOre
       else:
