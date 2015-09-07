@@ -114,12 +114,14 @@ class User(db.Model):
     def avg(self, mese, anno,entries):
       if entries==None:
         entries = self.entrate_uscite_totali(mese, anno)
+      if len(entries)==0:
+        return None
       sumEntrate = 0
       sumUscite = 0
       for entry in entries:
         sumEntrate+=entry.Entrata.ora.hour*3600+entry.Entrata.ora.minute*60 
         sumUscite+=entry.Uscita.ora.hour*3600+entry.Uscita.ora.minute*60
-     
+      
       avgEntrate=sumEntrate/len(entries)
       avgUscite=sumUscite/len(entries)
       return {'entrata':datetime.timedelta(seconds=avgEntrate), 'uscita':datetime.timedelta(seconds=avgUscite)}
