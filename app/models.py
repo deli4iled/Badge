@@ -81,7 +81,7 @@ class User(db.Model):
       totale= self.oreDovuteMese(mese,anno)-self.oreMensiliValide(mese,anno)+self.totaleRitardi(mese,anno)
       print totale
       if totale < datetime.timedelta(0):
-        return None
+        return datetime.timedelta(0)
       return totale
        
     
@@ -103,7 +103,7 @@ class User(db.Model):
         ritardiTotali+=entry.Entrata.ritardoNoROL()
       return ritardiTotali
       
-    def ROLMensili(self, mese, anno,entries):
+    def ROLMensili(self, mese, anno,entries=None):
       if entries==None:
         entries = self.entrate_uscite_totali(mese, anno)
       ROLTotali = datetime.timedelta(hours=0)
@@ -111,11 +111,11 @@ class User(db.Model):
         ROLTotali+=entry.Entrata.ROL()
       return ROLTotali
       
-    def avg(self, mese, anno,entries):
+    def avg(self, mese, anno,entries=None):
       if entries==None:
         entries = self.entrate_uscite_totali(mese, anno)
       if len(entries)==0:
-        return None
+        return {'entrata':None, 'uscita':None}
       sumEntrate = 0
       sumUscite = 0
       for entry in entries:
@@ -125,20 +125,30 @@ class User(db.Model):
       avgEntrate=sumEntrate/len(entries)
       avgUscite=sumUscite/len(entries)
       return {'entrata':datetime.timedelta(seconds=avgEntrate), 'uscita':datetime.timedelta(seconds=avgUscite)}
-      #return sumEntrate/len(entry),sumUscite/len(entry) 
-      '''
-      entrata = datetime.datetime.strptime(entrata, FMT)
-      uscita = datetime.datetime.strptime(uscita, FMT)
-      ingressoOk = datetime.datetime.strptime(orarioIngresso, FMT)
-      maxOre = datetime.timedelta(hours=maxNumOre)
-      minOre = datetime.timedelta(hours=minNumOre)
-      oreTot=uscita-entrata
-      if (entrata<=ingressoOk):    
-        return oreTot<=maxOre and oreTot or maxOre
-      else:
-        return oreTot<=minOre and oreTot or minOre
-      '''
-      return 0
+    
+    def getRecapOtherUsers(self, mese, anno):
+      users = db.session.query(User).all()
+      results = []
+      for user in users:
+        nome = user.nome
+        print user.avg(mese,anno)
+        entrata = user.avg(mese,anno)['entrata']
+        uscita = user.avg(mese,anno)['uscita']
+        ritardo = user.totaleRitardi(mese,anno)
+        presenza = user.oreMensiliTotali(mese,anno)
+        valide = user.oreMensiliValide(mese,anno)
+        oreDaRec = user.oreMensiliDaRecuperare(mese,anno)
+        ROL = user.ROLMensili(mese,anno)
+        giorni = user.giorniPresenza(mese,anno)
+        utente = {'nome':nome,'entrata':entrata,'uscita':uscita,'ritardo':ritardo,'presenza':presenza,'valide':valide, 'recuperare':oreDaRec,'ROL':ROL,'giorni':giorni}
+        results.append(utente)
+      return results
+    
+    def giorniPresenza(self, mese, anno, entries=None):
+      if entries==None:
+        entries = self.entrate_uscite_totali(mese, anno)
+      return len(entries)
+    
     
     def __repr__(self):
         return '<User %r>' % (self.nome)

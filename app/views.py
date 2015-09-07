@@ -1,5 +1,6 @@
 from app import app, db
 from flask import Flask, redirect, url_for, session, g, render_template, flash, request
+from functools import wraps
 from sqlalchemy import extract
 from flask_oauth import OAuth
 from models import User, Entrata, Uscita
@@ -28,6 +29,15 @@ google = oauth.remote_app('google',
                           consumer_key=GOOGLE_CLIENT_ID,
                           consumer_secret=GOOGLE_CLIENT_SECRET)
 
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if g.user is None:
+            return redirect(url_for('login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
 @app.before_request
 def before_request():
     g.user = None
@@ -39,7 +49,7 @@ def before_request():
 @app.route('/')
 @app.route('/index')
 def index():
-    flash(session)
+    #flash(session)
     if g.user:
       
       entrata = None
@@ -58,11 +68,11 @@ def index():
             if session.get('uscita'):
               uscita = True
               uscita = session['uscita']
-        flash(uscita,entrata)
+        #flash(uscita,entrata)
       else:
         entrato, entrata = checkEntrata()
         uscito, new_uscita, uscita = checkUscita()
-        flash(uscito)
+        #flash(uscito)
         if entrato:
           session['entrata'] = str(entrata)
           session['data'] = str(datetime.datetime.now().date())
@@ -174,6 +184,7 @@ def logout():
     
 @app.route('/overview')
 @app.route('/overview/<month>/<year>')
+@login_required
 def overview(month=datetime.datetime.now().date().month,year=datetime.datetime.now().date().year):
   
   #entries = (db.session.query(User, Entrata, Uscita).join(Entrata).join(Uscita, Entrata.data == Uscita.data).filter(Entrata.user_id==Uscita.user_id).filter(User.id== g.user.id)).all()
@@ -181,7 +192,18 @@ def overview(month=datetime.datetime.now().date().month,year=datetime.datetime.n
   #print "qui",entries
   return render_template('show_entries.html', sel_month=month, sel_year=year)
   
+@app.route('/global_overview')
+@app.route('/global_overview/<month>/<year>')
+@login_required
+def global_overview(month=datetime.datetime.now().date().month,year=datetime.datetime.now().date().year):
+  
+  #entries = (db.session.query(User, Entrata, Uscita).join(Entrata).join(Uscita, Entrata.data == Uscita.data).filter(Entrata.user_id==Uscita.user_id).filter(User.id== g.user.id)).all()
+  #entries = g.user.entrate_uscite_totali()
+  #print "qui",entries
+  return render_template('show_entries_global.html', sel_month=month, sel_year=year)
+  
 @app.route('/entra')
+@login_required
 def entra():
   entrato, entrata = checkEntrata()
   if not entrato:
@@ -189,14 +211,15 @@ def entra():
     db.session.commit()
     session['entrata'] = str(entrata)
     session['data'] = str(datetime.datetime.now().date())
-    flash(str(session))
+    #flash(str(session))
   return redirect(url_for('index'))
   
 @app.route('/esci')
+@login_required
 def esci():  
   if  session.get('entrata'):    
     uscito, uscita, entry = checkUscita()
-    flash('ENTRATO')
+    #flash('Registrazione entrata avvenuta')
     if uscito:
        flash("Il checkin in uscita  di oggi e' stato posticipato")
        db.session.delete(entry)
@@ -204,8 +227,13 @@ def esci():
     db.session.commit()
     session['uscita'] = str(uscita)
     session['data'] = str(datetime.datetime.now().date())
-    flash(str(uscita))
+    #flash(str(uscita))
   return redirect(url_for('index'))
+
+@app.route('/statistiche')
+@login_required
+def statistiche():
+  return render_template('statistiche.html')
 
 @app.context_processor
 def up_date():
@@ -261,11 +289,12 @@ def checkUscita():
   uscita = Uscita(user_id=g.user.id, data=datetime.datetime.now().date(),ora=datetime.datetime.now().time())
   for entry in g.user.uscite:
     if entry.data==uscita.data:
-     flash("Gia' uscito")
+     #flash("Gia' uscito")
      return True, uscita, entry
   return False, uscita, None
 
 def entriesMese():
   data=datetime.datetime.now().date().month
   return (db.session.query(Entrata, Uscita).join(Uscita, Entrata.data == Uscita.data).filter(Entrata.user_id==Uscita.user_id).filter(User.id== g.user.id).filter(extract('month', Entrata.data)==data)).all()
-  
+
+

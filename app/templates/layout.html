@@ -4,7 +4,7 @@
 {% block head %}
   <!--<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">-->
   <!-- Loading Bootstrap -->
-  <title>{% block title %}PPP{% endblock %} | Prova</title>
+  <title>{% block title %}Prova Orari{% endblock %} </title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!--<link href="static/Flat/dist/css/vendor/bootstrap.min.css" rel="stylesheet">-->
   <link rel=stylesheet type=text/css href="{{ url_for('static', filename='Flat/dist/css/vendor/bootstrap.min.css') }}">
@@ -25,17 +25,18 @@
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-01">
               <span class="sr-only">Toggle navigation</span>
             </button>
-            <a class="navbar-brand" href="/index">PPP</a>
+            <a class="navbar-brand" href="/index">Prova Orari</a>
           </div>
           <div class="collapse navbar-collapse" id="navbar-collapse-01">
             <ul class="nav navbar-nav navbar-left">
               {% if g.user %}
-              
-              <li><a href="{{ url_for('overview') }}">overview</a>
-              <li><a href="{{ url_for('index') }}">check in</a>
-              <li><a href="{{ url_for('logout') }}">logout [{{ g.user.nome }}]</a>
+              <li><a href="{{ url_for('index') }}">check in</a></li>
+              <li><a href="{{ url_for('overview') }}">overview</a></li>
+              <!--<li><a href="{{ url_for('statistiche') }}">statistiche</a></li>-->
+              <li><a href="{{ url_for('global_overview') }}">overview globale</a></li>
+              <li><a href="{{ url_for('logout') }}">logout [{{ g.user.nome }}]</a></li>
               {% else %}
-              <li><a href="{{ url_for('login') }}">login</a>
+              <li><a href="{{ url_for('login') }}">login</a></li>
               {% endif %}
              </ul>
           </div><!-- /.navbar-collapse -->
@@ -54,8 +55,8 @@
             <p>{{ message }}</p>   
           
           {% endfor %}
+        </div>
       {% endif %}
     {% endwith %}
-    </div>
   </div>  
 </body>

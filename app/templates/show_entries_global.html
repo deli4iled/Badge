@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<script type=text/javascript>
+  
+$(document).ready(function(){
+  $("select").select2({dropdownCssClass: 'dropdown-inverse'});
+  $('#mese').on('change', function(){
+    var selected_month = $(this).find("option:selected").val();
+    var selected_year = $('#anno').find("option:selected").val();
+    //alert(selected_month+selected_year);
+    window.location="/global_overview/"+selected_month+"/"+selected_year;
+  });
+  $('#anno').on('change', function(){
+    var selected_month = $('#mese').find("option:selected").val();
+    var selected_year = $(this).find("option:selected").val();
+    //alert(selected_month+selected_year);
+    window.location="/global_overview/"+selected_month+"/"+selected_year;
+  });
+  });
+</script>
+  <div class="row">
+    {% set years = years() %}
+    <div class="col-md-4 ">
+      <select id="anno" class="form-control select select-primary select-block mbl ">
+        {% for year in years %}
+          {% if (loop.index+2010-1)|string == sel_year|string %} <!--TODO togliere 2010 -->
+            <option value="{{year}}" selected>{{year}}</option>
+          {% else %}
+            <option value="{{year}}">{{year}}</option>
+          {% endif %}
+        {% endfor %}
+      </select>          
+    </div>
+    {% set months = months() %}
+    <div class="col-md-4 ">        
+      <select id="mese" class="form-control form-control select select-primary select-block mbl" >
+          {% for month in months %}
+            {% if loop.index|string == sel_month|string %}
+              <option value="{{loop.index}}" selected>{{month}}</option>
+            {% else %}
+              <option value="{{loop.index}}">{{month}} </option>
+            {% endif %}
+          {% endfor %}
+      </select>          
+    </div>
+  </div>
+  <table class="table table-hover" style="width:100%">
+    <thead>
+      <tr class="title">
+        <th>Nome</th>
+        <th>Entrata media</th>
+        <th>Uscita media</th>
+        <th>Ritardo non recuperato </th>
+        <th>Ore presenza tot</th>
+        <th>Ore Giornaliere Valide tot</th>
+        <th>Ore mancanti</th>
+        <th>ROL per ritardo</th>
+        <th>ROL da richiedere</th>
+        <th>Giorni presenza</th>
+        
+      </tr>
+    </thead>
+  {% set entries = g.user.getRecapOtherUsers(sel_month, sel_year) %}
+  
+  {% for entry in entries %}
+    <tr >
+      {% set orePresenza=entry['presenza'] %}
+      {% set oreRitardo=entry['ritardo'] %}
+      {% set oreValide=entry['valide'] %}
+      {% set oreMancanti=entry['recuperare'] %}      
+      {% set ROL=entry['ROL'] %}
+      <td>{{entry['nome']}}</td>
+      <td>{{entry['entrata']}}</td>
+      <td>{{entry['uscita']}}</td>
+      <td>{{oreRitardo}}</td>
+      <td>{{orePresenza.days*24+orePresenza.seconds//3600}}:{{'{:02d}'.format((orePresenza.seconds//60)%60)}}:00</td>
+      <td>{{oreValide.days*24+oreValide.seconds//3600}}:{{'{:02d}'.format((oreValide.seconds//60)%60)}}:00</td>     
+      <td>{{oreMancanti}}</td>
+      <td>{{ROL}}</td>
+      <td>{{ROL+oreRitardo+oreMancanti}}</td>
+      <td>{{entry['giorni']}}</td>
+    </tr>
+  
+  {% else %}
+      <em>Non è stata registrata nessuna attività</em>
+  {% endfor %}
+  </table>
+{% endblock %}
